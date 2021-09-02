@@ -1,0 +1,131 @@
+<html>
+<body>
+
+<!-- ui -->
+
+	<div>
+		<h3>JavaScript Parser</h3>
+
+		<p>Enter or load some JavaScript code and click the Parse button
+		to convert the specified code into a tree of object nodes.</p>
+
+		<label>Code to Parse:</label><br />
+		<input id="inputFile" type="file" onchange="inputFile_Changed(this);"></input><br />
+		<textarea id="textareaCodeToParse" cols="80" rows="25">
+var result2 = a.b();
+var result3 = a.b().c(d.e(arg0)) + f.g(arg1, arg2);
+var result = getValue();
+var fivish = 1 * 2 + 3;
+var nine = 1 + 2 * 3;
+var stringValue = "This is a string";
+
+function Test(testParameter)
+{
+	var result = getValue();
+
+	for (var i = 0; i &lt; 2; i++)
+	{
+		if (result)
+		{
+			var one = 1;
+		}
+		else
+		{
+			var four = 2 + 2;
+			var five = 2 + 3;
+			break;
+		}
+	}
+}
+
+function getValue()
+{
+	return true;
+}
+
+function Class(name)
+{
+	this.name = name;
+}
+{
+	Class.prototype.method = function()
+	{
+		var returnValue;
+		returnValue = 1;
+
+		return returnValue;
+	}
+}
+		</textarea><br/>
+
+		<button onclick="buttonParse_Clicked();">Parse</button>
+		<button onclick="buttonUnparse_Clicked();">Unparse</button>
+		<br />
+
+		<label>Code Tree:</label><br />
+		<textarea id="textareaCodeAsTree" cols="80" rows="25"></textarea>
+	</div>
+<!-- ui ends -->
+
+<script src="Attribute.js"></script>
+<script src="Code.js"></script>
+<script src="CodeNode.js"></script>
+<script src="CodeNodeDefn.js"></script>
+<script src="CodeRun.js"></script>
+<script src="Keyword.js"></script>
+<script src="Lookup.js"></script>
+<script src="Operator.js"></script>
+<script src="State.js"></script>
+<script src="StringHelper.js"></script>
+<script src="Variable.js"></script>
+
+<script type="text/javascript">
+
+// ui event handlers
+
+function buttonParse_Clicked()
+{
+	var textareaCodeToParse = document.getElementById("textareaCodeToParse");
+	var codeToParse = textareaCodeToParse.value;
+	var codeToParseAsObject = new Code(codeToParse);
+	var codeAsTree = codeToParseAsObject.parseStringIntoCodeTree();
+	codeAsTree.removeParentsFromDescendants();
+	var codeTreeAsStringParsed = codeAsTree.toStringJSON();
+	var textareaCodeAsTree = document.getElementById("textareaCodeAsTree");
+	textareaCodeAsTree.value = codeTreeAsStringParsed;
+}
+
+function buttonUnparse_Clicked()
+{
+	var textareaProgramAsJSON = document.getElementById("textareaCodeAsTree");
+	var programAsJSON = textareaCodeAsTree.value;
+
+	var programAsObject = JSON.parse(programAsJSON);
+	var programAsCodeNode =
+		CodeNode.setPrototypesOnObjectAndDescendants(programAsObject);
+	programAsCodeNode.recreateEmptyListsOnSelfAndDescendants();
+	var programAsCode = programAsCodeNode.toStringCode();
+
+	// todo
+	programAsCode = "todo - Unparse not yet fully implemented!\n" + programAsCode;
+
+	var textareaProgramAsCode = document.getElementById("textareaCodeToParse");
+	textareaProgramAsCode.value = programAsCode;
+}
+
+function inputFile_Changed(inputFile)
+{
+	var file = inputFile.files[0];
+	var fileReader = new FileReader();
+	fileReader.onload = function(event)
+	{
+		var codeToParse = event.target.result;
+		var textareaCodeToParse = document.getElementById("textareaCodeToParse");
+		textareaCodeToParse.value = codeToParse;
+	}
+	fileReader.readAsText(file);
+}
+
+</script>
+</body>
+</html>
